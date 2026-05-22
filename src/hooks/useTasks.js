@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase, isSupabaseConfigured } from '../lib/supabase'
 
-const STORAGE_KEY = 'freelance_tasks_v1'
-
 export const CATEGORIES = [
     { id: 'avatar', name: '頭像', color: '#B8C0FF' },
     { id: 'halfBody', name: '半身插畫', color: '#FFD6FF' },
@@ -47,58 +45,38 @@ const mapToDb = (task) => ({
     created_at: task.createdAt
 })
 
-
 export const useTasks = () => {
     const isCloud = isSupabaseConfigured()
-    const [tasks, setTasks] = useState(() => {
-        const saved = localStorage.getItem(STORAGE_KEY)
-        return saved ? JSON.parse(saved) : INITIAL_TASKS
-    })
+    const [commissions, setCommissions] = useState(INITIAL_TASKS)
     const [loading, setLoading] = useState(isCloud)
     const [error, setError] = useState(null)
 
-    // Load tasks
+    // Load commissions
     useEffect(() => {
-        if (!isCloud) {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks))
-            return
-        }
+        if (!isCloud) return
 
-        const fetchTasks = async () => {
+        const fetchData = async () => {
             try {
                 setLoading(true)
                 const { data, error: fetchErr } = await supabase
                     .from('commissions')
                     .select('*')
-                    .order('created_at', { ascending: false })
 
                 if (fetchErr) throw fetchErr
 
                 if (data) {
-                    const loadedTasks = data.map(mapFromDb)
-                    setTasks(loadedTasks)
-                    localStorage.setItem(STORAGE_KEY, JSON.stringify(loadedTasks))
+                    setCommissions(data.map(mapFromDb))
                 }
             } catch (err) {
                 console.error('Failed to fetch tasks from Supabase:', err)
                 setError(err.message)
-                // Fallback to local storage
-                const saved = localStorage.getItem(STORAGE_KEY)
-                if (saved) setTasks(JSON.parse(saved))
             } finally {
                 setLoading(false)
             }
         }
 
-        fetchTasks()
+        fetchData()
     }, [isCloud])
-
-    // Save tasks to localStorage in offline/local mode
-    useEffect(() => {
-        if (!isCloud) {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks))
-        }
-    }, [tasks, isCloud])
 
     const addTask = async (task) => {
         const newTask = {
@@ -109,20 +87,21 @@ export const useTasks = () => {
         }
 
         // Optimistically add to local state
-        setTasks(prev => [newTask, ...prev])
+        setCommissions(prev => [newTask, ...prev])
 
         if (isCloud) {
             try {
+                const newItem = mapToDb(newTask)
                 const { error: insertErr } = await supabase
                     .from('commissions')
-                    .insert([mapToDb(newTask)])
+                    .insert([newItem])
 
                 if (insertErr) throw insertErr
             } catch (err) {
                 console.error('Failed to add task to Supabase:', err)
                 setError(err.message)
                 // Revert local state changes
-                setTasks(prev => prev.filter(t => t.id !== newTask.id))
+                setCommissions(prev => prev.filter(t => t.id !== newTask.id))
             }
         }
     }
@@ -131,7 +110,7 @@ export const useTasks = () => {
         let originalTask = null
 
         // Optimistically update local state
-        setTasks(prev => prev.map(t => {
+        setCommissions(prev => prev.map(t => {
             if (t.id === id) {
                 originalTask = { ...t }
                 return { ...t, ...updatedFields }
@@ -141,8 +120,8 @@ export const useTasks = () => {
 
         if (isCloud) {
             try {
-                const currentTasks = [...tasks]
-                const targetTask = currentTasks.find(t => t.id === id)
+                const currentCommissions = [...commissions]
+                const targetTask = currentCommissions.find(t => t.id === id)
                 if (!targetTask) return
 
                 const mergedTask = { ...targetTask, ...updatedFields }
@@ -157,17 +136,17 @@ export const useTasks = () => {
                 setError(err.message)
                 // Revert local state changes
                 if (originalTask) {
-                    setTasks(prev => prev.map(t => t.id === id ? originalTask : t))
+                    setCommissions(prev => prev.map(t => t.id === id ? originalTask : t))
                 }
             }
         }
     }
 
     const deleteTask = async (id) => {
-        const originalTasks = [...tasks]
+        const originalCommissions = [...commissions]
 
         // Optimistically remove from local state
-        setTasks(prev => prev.filter(t => t.id !== id))
+        setCommissions(prev => prev.filter(t => t.id !== id))
 
         if (isCloud) {
             try {
@@ -181,17 +160,17 @@ export const useTasks = () => {
                 console.error('Failed to delete task from Supabase:', err)
                 setError(err.message)
                 // Revert local state changes
-                setTasks(originalTasks)
+                setCommissions(originalCommissions)
             }
         }
     }
 
     const toggleTaskCompletion = async (id) => {
-        const originalTasks = [...tasks]
+        const originalCommissions = [...commissions]
         let updatedCompleted = false
 
         // Optimistically toggle completion in local state
-        setTasks(prev => prev.map(t => {
+        setCommissions(prev => prev.map(t => {
             if (t.id === id) {
                 updatedCompleted = !t.completed
                 return { ...t, completed: updatedCompleted }
@@ -214,13 +193,14 @@ export const useTasks = () => {
                 console.error('Failed to toggle task completion in Supabase:', err)
                 setError(err.message)
                 // Revert local state changes
-                setTasks(originalTasks)
+                setCommissions(originalCommissions)
             }
         }
     }
 
     return {
-        tasks,
+        tasks: commissions, // returned as tasks to preserve app-wide compatibility
+        commissions,
         loading,
         error,
         isCloudSynced: isCloud,
