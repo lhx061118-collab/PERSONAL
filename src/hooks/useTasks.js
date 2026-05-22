@@ -51,32 +51,21 @@ export const useTasks = () => {
     const [loading, setLoading] = useState(isCloud)
     const [error, setError] = useState(null)
 
+    const fetchData = async () => {
+        if (!isCloud) return
+        const { data } = await supabase
+            .from('commissions')
+            .select('*')
+
+        if (data) {
+            setCommissions(data.map(mapFromDb))
+        }
+    }
+
     // Load commissions
     useEffect(() => {
-        if (!isCloud) return
-
-        const fetchData = async () => {
-            try {
-                setLoading(true)
-                const { data, error: fetchErr } = await supabase
-                    .from('commissions')
-                    .select('*')
-
-                if (fetchErr) throw fetchErr
-
-                if (data) {
-                    setCommissions(data.map(mapFromDb))
-                }
-            } catch (err) {
-                console.error('Failed to fetch tasks from Supabase:', err)
-                setError(err.message)
-            } finally {
-                setLoading(false)
-            }
-        }
-
         fetchData()
-    }, [isCloud])
+    }, [])
 
     const addTask = async (task) => {
         const newTask = {
@@ -86,23 +75,25 @@ export const useTasks = () => {
             completed: false,
         }
 
-        // Optimistically add to local state
-        setCommissions(prev => [newTask, ...prev])
-
-        if (isCloud) {
-            try {
+        const insertNewItem = async () => {
+            if (isCloud) {
                 const newItem = mapToDb(newTask)
                 const { error: insertErr } = await supabase
                     .from('commissions')
                     .insert([newItem])
 
                 if (insertErr) throw insertErr
-            } catch (err) {
-                console.error('Failed to add task to Supabase:', err)
-                setError(err.message)
-                // Revert local state changes
-                setCommissions(prev => prev.filter(t => t.id !== newTask.id))
+            } else {
+                setCommissions(prev => [newTask, ...prev])
             }
+        }
+
+        try {
+            await insertNewItem()
+            await fetchData()
+        } catch (err) {
+            console.error('Failed to add commission:', err)
+            setError(err.message)
         }
     }
 
@@ -204,6 +195,7 @@ export const useTasks = () => {
         loading,
         error,
         isCloudSynced: isCloud,
+        fetchData,
         addTask,
         updateTask,
         deleteTask,
