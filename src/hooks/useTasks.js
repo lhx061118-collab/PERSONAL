@@ -11,9 +11,9 @@ export const CATEGORIES = [
 ]
 
 const INITIAL_TASKS = [
-    { id: '1', title: '角色設計委託 - 莉莉', category: 'avatar', deadline: '2026-06-01', description: '全身立繪，含背景。', price: '5000', completed: false, createdAt: new Date().toISOString() },
-    { id: '2', title: '場景氛圍委託', category: 'mood', deadline: '2026-05-30', description: '黃昏場景。', price: '8000', completed: true, createdAt: new Date().toISOString() },
-    { id: '3', title: 'Q版人物三連發', category: 'chibiChar', deadline: '2026-06-05', description: '三個不同表情。', price: '2000', completed: false, createdAt: new Date().toISOString() },
+    { id: '1', title: '角色設計委託 - 莉莉', category: 'avatar', deadline: '2026-06-01', description: '全身立繪，含背景。', price: '5000', tip: '0', completed: false, createdAt: new Date().toISOString() },
+    { id: '2', title: '場景氛圍委託', category: 'mood', deadline: '2026-05-30', description: '黃昏場景。', price: '8000', tip: '500', completed: true, createdAt: new Date().toISOString() },
+    { id: '3', title: 'Q版人物三連發', category: 'chibiChar', deadline: '2026-06-05', description: '三個不同表情。', price: '2000', tip: '0', completed: false, createdAt: new Date().toISOString() },
 ]
 
 export const useTasks = () => {

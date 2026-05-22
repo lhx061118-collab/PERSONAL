@@ -9,6 +9,7 @@ const TaskModal = ({ isOpen, onClose, onSave, taskToEdit }) => {
     deadline: '',
     description: '',
     price: '',
+    tip: '0',
   })
 
   useEffect(() => {
@@ -21,6 +22,7 @@ const TaskModal = ({ isOpen, onClose, onSave, taskToEdit }) => {
         deadline: '',
         description: '',
         price: '',
+        tip: '0',
       })
     }
   }, [taskToEdit, isOpen])
@@ -78,14 +80,25 @@ const TaskModal = ({ isOpen, onClose, onSave, taskToEdit }) => {
             </div>
           </div>
 
-          <div className="form-group">
-            <label>預計金額 (TWD)</label>
-            <input
-              type="number"
-              value={formData.price}
-              onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-              placeholder="1000"
-            />
+          <div className="form-row">
+            <div className="form-group">
+              <label>預計金額 (TWD)</label>
+              <input
+                type="number"
+                value={formData.price}
+                onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                placeholder="1000"
+              />
+            </div>
+            <div className="form-group">
+              <label>打賞金額 (TWD)</label>
+              <input
+                type="number"
+                value={formData.tip}
+                onChange={(e) => setFormData({ ...formData, tip: e.target.value })}
+                placeholder="0"
+              />
+            </div>
           </div>
 
           <div className="form-group">

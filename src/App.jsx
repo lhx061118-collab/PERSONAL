@@ -1,9 +1,10 @@
 import React, { useState } from 'react'
-import { Plus, Search, Calendar as CalendarIcon, Layout, Settings, Filter } from 'lucide-react'
+import { Plus, Search, Calendar as CalendarIcon, Layout, Settings, Filter, TrendingUp } from 'lucide-react'
 import { useTasks } from './hooks/useTasks'
 import TaskModal from './components/TaskModal'
 import TaskCard from './components/TaskCard'
 import CalendarView from './components/CalendarView'
+import IncomeOverview from './components/IncomeOverview'
 import './App.css'
 
 function App() {
@@ -62,6 +63,13 @@ function App() {
           >
             <CalendarIcon size={20} />
             <span>行事曆</span>
+          </button>
+          <button
+            className={`nav-item clickable ${activeTab === 'income' ? 'active' : ''}`}
+            onClick={() => setActiveTab('income')}
+          >
+            <TrendingUp size={20} />
+            <span>收入總覽</span>
           </button>
         </nav>
         <div className="sidebar-footer">
@@ -135,12 +143,19 @@ function App() {
                 </div>
               )}
             </div>
-          ) : (
+          ) : activeTab === 'calendar' ? (
             <div className="calendar-view">
               <div className="view-header">
                 <h1>行事曆視圖</h1>
               </div>
               <CalendarView tasks={tasks} />
+            </div>
+          ) : (
+            <div className="income-view">
+              <div className="view-header">
+                <h1>收入總覽</h1>
+              </div>
+              <IncomeOverview tasks={tasks} />
             </div>
           )}
         </section>

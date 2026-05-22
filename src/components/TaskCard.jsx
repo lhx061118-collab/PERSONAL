@@ -4,54 +4,57 @@ import { format, isPast, isToday } from 'date-fns'
 import { CATEGORIES } from '../hooks/useTasks'
 
 const TaskCard = ({ task, onToggle, onDelete, onEdit }) => {
-    const category = CATEGORIES.find(c => c.id === task.category) || CATEGORIES[CATEGORIES.length - 1]
-    const deadlineDate = new Date(task.deadline)
-    const isOverdue = isPast(deadlineDate) && !isToday(deadlineDate) && !task.completed
+  const category = CATEGORIES.find(c => c.id === task.category) || CATEGORIES[CATEGORIES.length - 1]
+  const deadlineDate = new Date(task.deadline)
+  const isOverdue = isPast(deadlineDate) && !isToday(deadlineDate) && !task.completed
 
-    return (
-        <div className={`task-card glass ${task.completed ? 'completed' : ''}`}>
-            <div className="task-header">
-                <span className="category-tag" style={{ backgroundColor: category.color + '40', color: category.color }}>
-                    {category.name}
-                </span>
-                <div className="task-actions">
-                    <button onClick={() => onEdit(task)} className="action-btn edit">
-                        <Edit2 size={16} />
-                    </button>
-                    <button onClick={() => onDelete(task.id)} className="action-btn delete">
-                        <Trash2 size={16} />
-                    </button>
-                </div>
+  return (
+    <div className={`task-card glass ${task.completed ? 'completed' : ''}`}>
+      <div className="task-header">
+        <span className="category-tag" style={{ backgroundColor: category.color + '40', color: category.color }}>
+          {category.name}
+        </span>
+        <div className="task-actions">
+          <button onClick={() => onEdit(task)} className="action-btn edit">
+            <Edit2 size={16} />
+          </button>
+          <button onClick={() => onDelete(task.id)} className="action-btn delete">
+            <Trash2 size={16} />
+          </button>
+        </div>
+      </div>
+
+      <div className="task-body">
+        <h3 className="task-title">{task.title}</h3>
+        {task.description && <p className="task-desc">{task.description}</p>}
+      </div>
+
+      <div className="task-footer">
+        <div className="task-info">
+          <div className={`info-item ${isOverdue ? 'overdue' : ''}`}>
+            <Clock size={14} />
+            <span>{format(deadlineDate, 'yyyy/MM/dd')}</span>
+          </div>
+          {task.price && (
+            <div className="info-item price" title="預計金額">
+              <DollarSign size={14} />
+              <span>{task.price}</span>
+              {task.tip && parseInt(task.tip) > 0 && (
+                <span className="tip-amount" title="打賞金額">+{task.tip}</span>
+              )}
             </div>
+          )}
+        </div>
 
-            <div className="task-body">
-                <h3 className="task-title">{task.title}</h3>
-                {task.description && <p className="task-desc">{task.description}</p>}
-            </div>
+        <button
+          onClick={() => onToggle(task.id)}
+          className={`complete-btn ${task.completed ? 'done' : ''}`}
+        >
+          <CheckCircle size={20} />
+        </button>
+      </div>
 
-            <div className="task-footer">
-                <div className="task-info">
-                    <div className={`info-item ${isOverdue ? 'overdue' : ''}`}>
-                        <Clock size={14} />
-                        <span>{format(deadlineDate, 'yyyy/MM/dd')}</span>
-                    </div>
-                    {task.price && (
-                        <div className="info-item price">
-                            <DollarSign size={14} />
-                            <span>{task.price}</span>
-                        </div>
-                    )}
-                </div>
-
-                <button
-                    onClick={() => onToggle(task.id)}
-                    className={`complete-btn ${task.completed ? 'done' : ''}`}
-                >
-                    <CheckCircle size={20} />
-                </button>
-            </div>
-
-            <style jsx>{`
+      <style jsx>{`
         .task-card {
           padding: 1.5rem;
           border-radius: var(--border-radius-lg);
@@ -158,6 +161,16 @@ const TaskCard = ({ task, onToggle, onDelete, onEdit }) => {
         .info-item.price {
           color: #74c69d;
         }
+        
+        .tip-amount {
+          background: #ffd6ff;
+          color: #c9184a;
+          padding: 2px 6px;
+          border-radius: 4px;
+          font-size: 0.75rem;
+          font-weight: 700;
+          margin-left: 4px;
+        }
 
         .complete-btn {
           color: var(--text-muted);
@@ -171,8 +184,8 @@ const TaskCard = ({ task, onToggle, onDelete, onEdit }) => {
           transform: scale(1.1);
         }
       `}</style>
-        </div>
-    )
+    </div>
+  )
 }
 
 export default TaskCard
