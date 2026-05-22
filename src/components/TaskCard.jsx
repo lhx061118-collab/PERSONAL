@@ -26,6 +26,12 @@ const TaskCard = ({ task, onToggle, onDelete, onEdit }) => {
 
       <div className="task-body">
         <h3 className="task-title">{task.title}</h3>
+        {task.client && (
+          <div className="task-client" style={{ fontSize: '0.85rem', color: 'rgba(74, 78, 105, 0.8)', fontWeight: '600', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+            <span>委託人:</span>
+            <span style={{ color: '#7B88FF' }}>{task.client}</span>
+          </div>
+        )}
         {task.description && <p className="task-desc">{task.description}</p>}
       </div>
 

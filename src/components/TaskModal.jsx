@@ -10,11 +10,15 @@ const TaskModal = ({ isOpen, onClose, onSave, taskToEdit }) => {
     description: '',
     price: '',
     tip: '0',
+    client: '',
   })
 
   useEffect(() => {
     if (taskToEdit) {
-      setFormData(taskToEdit)
+      setFormData({
+        ...taskToEdit,
+        client: taskToEdit.client || '',
+      })
     } else {
       setFormData({
         title: '',
@@ -23,6 +27,7 @@ const TaskModal = ({ isOpen, onClose, onSave, taskToEdit }) => {
         description: '',
         price: '',
         tip: '0',
+        client: '',
       })
     }
   }, [taskToEdit, isOpen])
@@ -70,14 +75,24 @@ const TaskModal = ({ isOpen, onClose, onSave, taskToEdit }) => {
               </select>
             </div>
             <div className="form-group">
-              <label>截止日期</label>
+              <label>委託人 (Client)</label>
               <input
-                required
-                type="date"
-                value={formData.deadline}
-                onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
+                type="text"
+                value={formData.client || ''}
+                onChange={(e) => setFormData({ ...formData, client: e.target.value })}
+                placeholder="例如：AAA"
               />
             </div>
+          </div>
+
+          <div className="form-group">
+            <label>截止日期</label>
+            <input
+              required
+              type="date"
+              value={formData.deadline}
+              onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
+            />
           </div>
 
           <div className="form-row">

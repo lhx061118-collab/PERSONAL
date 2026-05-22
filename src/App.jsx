@@ -8,7 +8,7 @@ import IncomeOverview from './components/IncomeOverview'
 import './App.css'
 
 function App() {
-  const { tasks, addTask, updateTask, deleteTask, toggleTaskCompletion } = useTasks()
+  const { tasks, loading, error, isCloudSynced, addTask, updateTask, deleteTask, toggleTaskCompletion } = useTasks()
   const [activeTab, setActiveTab] = useState('board')
   const [searchQuery, setSearchQuery] = useState('')
   const [filter, setFilter] = useState('all')
@@ -48,6 +48,10 @@ function App() {
       <aside className="sidebar glass">
         <div className="logo">
           <h2>接稿助手</h2>
+        </div>
+        <div className={`sync-status ${isCloudSynced ? 'connected' : 'local'}`}>
+          <span className="dot"></span>
+          <span>{isCloudSynced ? '雲端同步中' : '本機儲存'}</span>
         </div>
         <nav>
           <button
@@ -125,7 +129,12 @@ function App() {
                 </div>
               </div>
 
-              {filteredTasks.length > 0 ? (
+              {loading ? (
+                <div className="empty-state glass">
+                  <div className="loading-spinner"></div>
+                  <p>正在載入您的案件資料...</p>
+                </div>
+              ) : filteredTasks.length > 0 ? (
                 <div className="task-grid">
                   {filteredTasks.map(task => (
                     <TaskCard
