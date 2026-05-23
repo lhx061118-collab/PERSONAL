@@ -82,7 +82,6 @@ export const useTasks = () => {
     const addTask = async (task) => {
         const newTask = {
             ...task,
-            id: crypto.randomUUID(),
             createdAt: new Date().toISOString(),
             completed: false,
         }
@@ -90,6 +89,7 @@ export const useTasks = () => {
         const insertNewItem = async () => {
             if (isCloud) {
                 const newItem = mapToDb(newTask)
+                delete newItem.id
                 const { error: insertErr } = await supabase
                     .from('commissions')
                     .insert([newItem])
