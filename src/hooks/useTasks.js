@@ -82,7 +82,7 @@ export const useTasks = () => {
     const addTask = async (task) => {
         const newTask = {
             ...task,
-            id: Date.now().toString(),
+            id: crypto.randomUUID(),
             createdAt: new Date().toISOString(),
             completed: false,
         }
