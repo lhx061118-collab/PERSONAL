@@ -52,13 +52,25 @@ export const useTasks = () => {
     const [error, setError] = useState(null)
 
     const fetchData = async () => {
-        if (!isCloud) return
-        const { data } = await supabase
-            .from('commissions')
-            .select('*')
+        if (!isCloud) {
+            setLoading(false)
+            return
+        }
+        setLoading(true)
+        try {
+            const { data, error: fetchErr } = await supabase
+                .from('commissions')
+                .select('*')
 
-        if (data) {
-            setCommissions(data.map(mapFromDb))
+            if (fetchErr) throw fetchErr
+            if (data) {
+                setCommissions(data.map(mapFromDb))
+            }
+        } catch (err) {
+            console.error('Failed to fetch commissions:', err)
+            setError(err.message)
+        } finally {
+            setLoading(false)
         }
     }
 
